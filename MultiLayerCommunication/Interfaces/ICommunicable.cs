@@ -9,5 +9,7 @@ namespace MultiLayerCommunication.Interfaces
     public interface ICommunicable
     {
         void Send(object sender, IMessageArgumentable messageArgs);
+        void AddSystemExecutor(string systemID,PipelineExecutor executor);
+
     }
 }

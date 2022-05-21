@@ -52,7 +52,6 @@
     <Compile Include="Interfaces\IUniqueIDSetter.cs" />
     <Compile Include="Pipeline.cs" />
     <Compile Include="PipelineExecutor.cs" />
-    <Compile Include="Process.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System.cs" />
   </ItemGroup>

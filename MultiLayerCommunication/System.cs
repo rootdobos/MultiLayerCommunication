@@ -1,38 +1,30 @@
-﻿using Google.Protobuf.Communication;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace DistributedSystem
+using MultiLayerCommunication.Interfaces;
+namespace MultiLayerCommunication
 {
     public class CommunicationSystem
     {
         public string SystemID;
-        public List<ProcessId> Processes
-        {
-            set { _Executor.Processes = value; }
-        }
-
-        public ProcessId OwnerProcessId
-        {
-            set { _Executor.OwnerProcessID = value; }
-        }
-        public CommunicationSystem(string systemID, Process process, TCPCommunicator tcpcommunicator)
+        public PipelineExecutor Executor { get { return Executor; } }
+        public CommunicationSystem(string systemID, IProcess process, ICommunicable communicator, AbstractionFactory factory )
         {
             _OwnerProcess = process;
-            _Executor = new PipelineExecutor(_OwnerProcess, tcpcommunicator);
+            _Executor = new PipelineExecutor(_OwnerProcess, communicator, factory);
 
             SystemID = systemID;
             _Executor.SystemID = SystemID;
-            tcpcommunicator.AddSystemExecutor(SystemID, _Executor);
+            communicator.AddSystemExecutor(SystemID, _Executor);
         }
-        public void Send(string pipelineID, MessageEventArgs message)
+        public void Send(string pipelineID, IMessageArgumentable message)
         {
             _Executor.ProcessMessageUpBottom(pipelineID,message);
         }
-        Process _OwnerProcess;
+        IProcess _OwnerProcess;
         private PipelineExecutor _Executor;
 
     }
