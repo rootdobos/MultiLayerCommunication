@@ -7,7 +7,7 @@ namespace MultiLayerCommunication.Interfaces
 {
     public interface IAbstractionable
     {
-
+        string MyID { set; get; }
         event EventHandler<IMessageArgumentable> DeliverEvent;
         event EventHandler<IMessageArgumentable> SendEvent;
 

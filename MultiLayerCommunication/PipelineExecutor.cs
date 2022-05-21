@@ -3,26 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Google.Protobuf.Communication;
-namespace DistributedSystem
+using MultiLayerCommunication.Interfaces;
+namespace MultiLayerCommunication
 {
     public class PipelineExecutor
     {
 
-        public List<ProcessId> Processes;
+       // public List<ProcessId> Processes;
         public string SystemID;
-        public ProcessId OwnerProcessID;
+       // public ProcessId OwnerProcessID;
         public Dictionary<string, Pipeline> Pipelines
         { get { return _Pipelines; } }
         public Dictionary<string, IAbstractionable> UniqueDependencyLayers
         {
             get { return _UniqueDependencyLayers; }
         }
-        public void ProcessMessageBottomUp(string pipelineID, MessageEventArgs message)
+        public void ProcessMessageBottomUp(string pipelineID, IMessageArgumentable message)
         {
             if (!_Pipelines.ContainsKey(pipelineID))
             {
-                if (!Utilities.IsElementInString(pipelineID, _InternalCreatables))
+                if (!IsElementInString(pipelineID, _InternalCreatables))
                 {
                     GeneratePipeline(pipelineID);
                     CheckAdditionalPipelines(pipelineID);
@@ -31,11 +31,11 @@ namespace DistributedSystem
             if(_Pipelines.ContainsKey(pipelineID))
                 _Pipelines[pipelineID].ProcessMessageBottomUp(message);
         }
-        public void ProcessMessageUpBottom(string pipelineID, MessageEventArgs message)
+        public void ProcessMessageUpBottom(string pipelineID, IMessageArgumentable message)
         {
             if (!_Pipelines.ContainsKey(pipelineID))
             {
-                if (!Utilities.IsElementInString(pipelineID, _InternalCreatables))
+                if (!IsElementInString(pipelineID, _InternalCreatables))
                 {
                     GeneratePipeline(pipelineID);
                     CheckAdditionalPipelines(pipelineID);
@@ -44,31 +44,52 @@ namespace DistributedSystem
             if (_Pipelines.ContainsKey(pipelineID))
                 _Pipelines[pipelineID].ProcessMessageUpBottom(message);
         }
-
-        public PipelineExecutor(Process process, TCPCommunicator tcpCommunicator)
+        public void AddInternalCreatables(IEnumerable<string> internalcreatables)
         {
-            _App = process;
+            _InternalCreatables.AddRange(internalcreatables);
+        }
+        public void AddUniqueLayersName(IEnumerable<string> layersnames)
+        {
+            _UniqueLayerNames.AddRange(layersnames);
+        }
+        public void AddInitializers(IEnumerable<IInitializer> initializers)
+        {
+            _Initializers.AddRange(initializers);
+        }
+        public void AddAdditionalPipelineNames(IEnumerable<IAdditionalPipelineContainable> names)
+        {
+            _AdditionalPipelineNameContainers.AddRange(names);
+        }
+        public PipelineExecutor(IProcess process, ICommunicable tcpCommunicator, AbstractionFactory factory)
+        {
+            _Process = process;
+            _Factory = factory;
+
             _Pipelines = new Dictionary<string, Pipeline>();
             _UniqueLayers = new Dictionary<string, IAbstractionable>();
-           
+            _UniqueLayerNames = new List<string>();
+            _AdditionalPipelineNameContainers = new List<IAdditionalPipelineContainable>();
+
             _UniqueDependencyLayers = new Dictionary<string, IAbstractionable>();
             _TCPCommunicator = tcpCommunicator;
 
             _InternalCreatables = new List<string>();
-            _InternalCreatables.Add("ep[");
+            _UniqueIDSetters = new List<IUniqueIDSetter>();
+            _Initializers = new List<IInitializer>();
+            //_InternalCreatables.Add("ep[");   //need in the PoC
 
-            GenerateInitialPipeline();
+            // GenerateInitialPipeline();
         }
 
-        private void GenerateInitialPipeline()
-        {
-            IAbstractionable[] layers = new IAbstractionable[1];
-            PerfectLink pl = new PerfectLink();
-            layers[0] = pl;
-            Pipeline app_pl = new Pipeline(_App, layers, _TCPCommunicator);
-            //app_pl.Layers[app_pl.Layers.Length - 1].SendEvent += tcpCommunicator.TCPSend;
-            _Pipelines.Add("app.pl", app_pl);
-        }
+        //private void GenerateInitialPipeline()
+        //{
+        //    IAbstractionable[] layers = new IAbstractionable[1];
+        //    PerfectLink pl = new PerfectLink();
+        //    layers[0] = pl;
+        //    Pipeline app_pl = new Pipeline(_Process, layers, _TCPCommunicator);
+        //    //app_pl.Layers[app_pl.Layers.Length - 1].SendEvent += tcpCommunicator.TCPSend;
+        //    _Pipelines.Add("app.pl", app_pl);
+        //}
 
         public void GeneratePipeline(string id)
         {
@@ -82,13 +103,13 @@ namespace DistributedSystem
                     layers[i - 1] = _UniqueDependencyLayers[layersIDs[i - 1] + "." + layersIDs[i]];
                 else
                 {
-                    layers[i - 1] = AbstractionFactory.Produce(layersIDs[i]);
+                    layers[i - 1] = _Factory.Produce(layersIDs[i]);
                     AddUnique(layersIDs[i], layers[i - 1]);
                     RunInit(layers[i - 1], layersIDs[i]);
                     SetUniqueID(layers[i - 1],layersIDs);
                 }
             }
-            Pipeline newPipeline = new Pipeline(_App, layers, _TCPCommunicator);
+            Pipeline newPipeline = new Pipeline(_Process, layers, _TCPCommunicator);
             _Pipelines.Add(id, newPipeline);
         }
 
@@ -96,44 +117,21 @@ namespace DistributedSystem
 
         public void RunInit(IAbstractionable layer,string id)
         {
-            if (id == "beb")
-            ((BestEffortBroadcast)layer).Init(Processes);
-            else if (id.Contains("nnar"))
+            foreach(IInitializer initer in _Initializers)
             {
-                ((NNAtomicRegister)layer).Init(Processes,OwnerProcessID.Rank,SystemID);
-            }
-            else if(id.Contains("ec"))
-            {
-                ((EpochChange)layer).Init(Utilities.MaxRank(Processes), OwnerProcessID, Processes.Count, SystemID);
-            }
-            else if(id.Contains("eld"))
-            {
-                ((EventualLeaderDetector)layer).Init(Processes,SystemID);
-            }
-            else if(id.Contains("epfd"))
-            {
-                ((EventuallyPerfectFailureDetector)layer).Init(Processes, SystemID);
-            }
-            else if(id.Contains("uc"))
-            {
-                ((UniformConsensus)layer).Init(Utilities.MaxRank(Processes), OwnerProcessID,Processes.Count,this,SystemID);
+                if (id.Contains(initer.InitableID))
+                {
+                    initer.Init(layer);
+                    break;
+                }
             }
         }
 
         private void SetUniqueID(IAbstractionable layer,string[] ids)
         {
-            if(layer is EventuallyPerfectFailureDetector)
+            foreach(IUniqueIDSetter setter in _UniqueIDSetters)
             {
-                string id = "";
-                int i = 0;
-                while(ids[i]!="epfd")
-                {
-                    id += ids[i]+".";
-                    i++;
-                }
-                id += "epfd";
-
-                ((EventuallyPerfectFailureDetector)layer).MyID = id;
+                setter.Set(layer, ids);
             }
         }
         private void CheckAdditionalPipelines(string id)
@@ -141,46 +139,48 @@ namespace DistributedSystem
             string[] layersIDs = id.Split('.');
             foreach (string layerID in layersIDs)
             {
-                if (layerID.Contains("nnar"))
+                foreach(IAdditionalPipelineContainable container in _AdditionalPipelineNameContainers)
                 {
-                    string additionalID = "app." + layerID + ".pl";
-                    if (!_Pipelines.ContainsKey(additionalID))
-                        GeneratePipeline(additionalID);
-                    additionalID= "app." + layerID+".beb" + ".pl";
-                    if (!_Pipelines.ContainsKey(additionalID))
-                        GeneratePipeline(additionalID);
-                }
-                else if(layerID.Contains("uc"))
-                {
-                    
-
-                    string additionalID = "app." + layerID+ ".ec"+".eld" +".epfd"+  ".pl";
-                    if (!_Pipelines.ContainsKey(additionalID))
-                        GeneratePipeline(additionalID);
-                    additionalID = "app." + layerID+ ".ec" + ".beb" + ".pl";
-                    if (!_Pipelines.ContainsKey(additionalID))
-                        GeneratePipeline(additionalID);
-
-                    additionalID = "app." + layerID + ".ec" + ".pl";
-                    if (!_Pipelines.ContainsKey(additionalID))
-                        GeneratePipeline(additionalID);
+                    if(layerID.Contains(container.BaseID))
+                    {
+                        foreach(string pipelineId in container.AdditionalPipelines)
+                        {
+                            if (!_Pipelines.ContainsKey(pipelineId))
+                                GeneratePipeline(pipelineId);
+                        }
+                    }
                 }
             }
         }
         private void AddUnique(string layerID, IAbstractionable layer)
         {
-            if(layerID.Contains("nnar") ||
-                layerID.Contains("uc"))
-                _UniqueLayers.Add(layerID, layer);
+            foreach(string unique in _UniqueLayerNames)
+            {
+                if(layerID.Contains(unique))
+                    _UniqueLayers.Add(layerID, layer);
+            }
+        }
 
+        private static bool IsElementInString(string str, List<string> list)
+        {
+            foreach (string element in list)
+                if (str.Contains(element))
+                    return true;
+            return false;
         }
 
         private List<string> _InternalCreatables;
+        private List<IUniqueIDSetter> _UniqueIDSetters;
+        private List<string> _UniqueLayerNames;
+        private List<IAdditionalPipelineContainable> _AdditionalPipelineNameContainers;
+
+        private List<IInitializer> _Initializers;
+
         private Dictionary<string, Pipeline> _Pipelines;
         private Dictionary<string, IAbstractionable> _UniqueLayers;
-
+        private AbstractionFactory _Factory;
         private Dictionary<string, IAbstractionable> _UniqueDependencyLayers;
-        private Process _App;
-        private TCPCommunicator _TCPCommunicator;
+        private IProcess _Process;
+        private ICommunicable _TCPCommunicator;
     }
 }
