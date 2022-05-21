@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Google.Protobuf.Communication;
+using MultiLayerCommunication.Interfaces;
 
-namespace DistributedSystem
+namespace MultiLayerCommunication
 {
     public class Pipeline
     {
@@ -16,11 +16,11 @@ namespace DistributedSystem
                 return _Layers;
             }
         }
-        public Pipeline(Process process, IAbstractionable[] layers, TCPCommunicator tCPCommunicator)
+        public Pipeline(IProcess process, IAbstractionable[] layers, ICommunicable tCPCommunicator)
         {
             _Process = process;
             _Layers = layers;
-            _TCPCommunicator = tCPCommunicator;
+            _Communicator = tCPCommunicator;
 
             InitSubscriptions();
             //_Layers[0].DeliverEvent += _Process.SubscribeToDeliver;
@@ -38,34 +38,33 @@ namespace DistributedSystem
             }
             for (int i=1; i<_Layers.Length;i++)
             {
-                _Layers[i].DeliverEvent += _Layers[i - 1].Deliver;
+                if (!_Layers[i].SubscribedToDeliver.Contains(_Layers[i + 1]))
+                {
+                    _Layers[i].DeliverEvent += _Layers[i - 1].Deliver;
+                    _Layers[i].SubscribedToDeliver.Add(_Layers[i - 1]);
+                }
             }
             for (int i = 0; i < _Layers.Length-1; i++)
             {
-                if(_Layers[i+1] is EpochConsensus)
+                if(!_Layers[i].SubscribedToSend.Contains( _Layers[i+1]))
                 {
-                    if(((EpochConsensus)_Layers[i+1]).SubscribedToSend==false)
-                    {
-                        _Layers[i].SendEvent += _Layers[i + 1].Send;
-                       ( (EpochConsensus)_Layers[i + 1]).SubscribedToSend = true;
-                    }
+                    _Layers[i].SendEvent += _Layers[i + 1].Send;
+                    _Layers[i].SubscribedToSend.Add(_Layers[i + 1]);
                 }
-                else
-                _Layers[i].SendEvent += _Layers[i+1].Send;
             }
-            _Layers[_Layers.Length - 1].SendEvent += _TCPCommunicator.TCPSend;
+            _Layers[_Layers.Length - 1].SendEvent += _Communicator.Send;
         }
 
-        public void ProcessMessageBottomUp(MessageEventArgs message)
+        public void ProcessMessageBottomUp(IMessageArgumentable message)
         {
             _Layers[_Layers.Length - 1].Deliver(this,message);
         }
-        public void ProcessMessageUpBottom(MessageEventArgs message)
+        public void ProcessMessageUpBottom(IMessageArgumentable message)
         {
             _Layers[0].Send(this,message);
         }
         private IAbstractionable[] _Layers;
-        private Process _Process;
-        private TCPCommunicator _TCPCommunicator;
+        private IProcess _Process;
+        private ICommunicable _Communicator;
     }
 }

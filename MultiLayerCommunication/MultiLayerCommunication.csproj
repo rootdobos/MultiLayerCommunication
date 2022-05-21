@@ -44,7 +44,9 @@
     <Compile Include="AbstractionFactory.cs" />
     <Compile Include="Interfaces\IAbstractionable.cs" />
     <Compile Include="Interfaces\IAbstractionCreatable.cs" />
+    <Compile Include="Interfaces\ICommunicable.cs" />
     <Compile Include="Interfaces\IMessageArgumentable.cs" />
+    <Compile Include="Interfaces\IProcess.cs" />
     <Compile Include="Pipeline.cs" />
     <Compile Include="PipelineExecutor.cs" />
     <Compile Include="Process.cs" />

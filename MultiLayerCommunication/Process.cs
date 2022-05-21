@@ -391,7 +391,6 @@ namespace DistributedSystem
             system.Send("app.pl", eventArgs);
         }
         private Dictionary<string,CommunicationSystem> _Systems;
-        public Queue<Message> EventQueue;
         TCPCommunicator _TCPCommunicator;
         private static readonly object _Locker = new object();
         private static readonly string MyID = "app";

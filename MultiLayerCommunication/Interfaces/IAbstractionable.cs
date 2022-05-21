@@ -11,6 +11,9 @@ namespace MultiLayerCommunication.Interfaces
         event EventHandler<IMessageArgumentable> DeliverEvent;
         event EventHandler<IMessageArgumentable> SendEvent;
 
+        List<object> SubscribedToSend { get; }
+        List<object> SubscribedToDeliver { get; }
+
         //void Send(Message message);
         void Send(object sender, IMessageArgumentable messageArgs);
         void Deliver(object sender, IMessageArgumentable messageArgs);
