@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributedSystem", "Distri
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Application", "Application\Application.csproj", "{CD72A594-0C1B-4DA0-A1BE-5C9426633E91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiLayerCommunication", "MultiLayerCommunication\MultiLayerCommunication.csproj", "{19B525F8-DBBD-4005-9444-570FD6A19B19}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{CD72A594-0C1B-4DA0-A1BE-5C9426633E91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD72A594-0C1B-4DA0-A1BE-5C9426633E91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD72A594-0C1B-4DA0-A1BE-5C9426633E91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19B525F8-DBBD-4005-9444-570FD6A19B19}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B525F8-DBBD-4005-9444-570FD6A19B19}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B525F8-DBBD-4005-9444-570FD6A19B19}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B525F8-DBBD-4005-9444-570FD6A19B19}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -6,6 +6,8 @@
 .vs/RegisterProject/v15/Server/sqlite3/storage.ide-wal
 DistributedSystem/bin/*
 DistributedSystem/obj/*
+MultiLayerCommunication/bin/*
+MultiLayerCommunication/obj/*
 Application/bin/*
 Application/obj/*
 packages/*

@@ -4,8 +4,8 @@
 .vs/RegisterProject/v15/Server/sqlite3/storage.ide
 .vs/RegisterProject/v15/Server/sqlite3/storage.ide-shm
 .vs/RegisterProject/v15/Server/sqlite3/storage.ide-wal
-RegisterProject/bin/*
-RegisterProject/obj/*
+DistributedSystem/bin/*
+DistributedSystem/obj/*
 Application/bin/*
 Application/obj/*
 packages/*
