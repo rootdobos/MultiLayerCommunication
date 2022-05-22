@@ -9,16 +9,14 @@ using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem.Layers
 {
-    public class EpochChange : IAbstractionable
+    public class EpochChange : LayerBase, IAbstractionable
     {
 
-        public static readonly string MyID = "ec";
-
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
         public EpochChange()
         {
-
+            MyID = "ec";
         }
         public void Init(ProcessId l0, ProcessId self, int n, string systemID)
         {
@@ -29,9 +27,9 @@ namespace DistributedSystem.Layers
             _NumberOfProcesses = n;
             _SystemID = systemID;
         }
-        public void Deliver(object sender, MessageEventArgs messageArgs)
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if(message.Type== Message.Types.Type.EldTrust && Utilities.IsMyMessage(message.ToAbstractionId, MyID))
             {
                 _Trusted = message.EldTrust.Process;
@@ -78,7 +76,7 @@ namespace DistributedSystem.Layers
             message.EcStartEpoch.NewTimestamp = newTS;
 
 
-            EventHandler<MessageEventArgs> handler = DeliverEvent;
+            EventHandler<IMessageArgumentable> handler = DeliverEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -104,7 +102,7 @@ namespace DistributedSystem.Layers
 
             message.PlSend.Message.EcInternalNack = new EcInternalNack();
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -126,16 +124,16 @@ namespace DistributedSystem.Layers
             message.BebBroadcast.Message.EcInternalNewEpoch = new EcInternalNewEpoch();
             message.BebBroadcast.Message.EcInternalNewEpoch.Timestamp = _Ts;
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
         }
 
-        public void Send(object sender, MessageEventArgs messageArgs)
+        public void Send(object sender, IMessageArgumentable messageArgs)
         {
-            EventHandler<MessageEventArgs> handler = SendEvent;
-            MessageEventArgs args = messageArgs;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
+            IMessageArgumentable args = messageArgs;
             //args.Message = message;
             handler?.Invoke(this, args);
         }

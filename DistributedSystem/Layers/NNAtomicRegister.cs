@@ -8,12 +8,11 @@ using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem.Layers
 {
-    public class NNAtomicRegister :IAbstractionable
+    public class NNAtomicRegister : LayerBase, IAbstractionable
     {
-        public string MyID = "nnar";
 
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
 
         public  NNAtomicRegister(string register)
         {
@@ -70,7 +69,7 @@ namespace DistributedSystem.Layers
             message.PlSend.Message.NnarInternalValue.Value.Defined = true;
             message.PlSend.Message.NnarInternalValue.Value.V = (int)_ValueStruct.val;
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -124,7 +123,7 @@ namespace DistributedSystem.Layers
             message.BebBroadcast.Message.NnarInternalWrite.Value.V = val;
 
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -148,14 +147,14 @@ namespace DistributedSystem.Layers
             message.BebBroadcast.Message.NnarInternalRead = new NnarInternalRead();
             message.BebBroadcast.Message.NnarInternalRead.ReadId = _RID;
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
         }
-        public void Send(object sender, MessageEventArgs messageArgs)
+        public void Send(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if(message.Type== Message.Types.Type.NnarRead)
             {
                 Read(message);
@@ -199,7 +198,7 @@ namespace DistributedSystem.Layers
             message.PlSend.Message.NnarInternalAck = new NnarInternalAck();
             message.PlSend.Message.NnarInternalAck.ReadId = rid;
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -234,7 +233,7 @@ namespace DistributedSystem.Layers
 
                         message.NnarWriteReturn = new NnarWriteReturn();
                     }
-                    EventHandler<MessageEventArgs> handler = DeliverEvent;
+                    EventHandler<IMessageArgumentable> handler = DeliverEvent;
                     MessageEventArgs args = new MessageEventArgs();
                     args.Message = message;
                     handler?.Invoke(this, args);
@@ -242,9 +241,9 @@ namespace DistributedSystem.Layers
             }
         }
 
-        public void Deliver(object sender, MessageEventArgs messageArgs)
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
 
             if(message.Type==Message.Types.Type.BebDeliver && Utilities.IsMyMessage(message.ToAbstractionId, MyID))
             {

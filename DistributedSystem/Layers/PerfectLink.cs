@@ -12,23 +12,19 @@ using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem.Layers
 {
-    public class PerfectLink : IAbstractionable
+    public class PerfectLink : LayerBase, IAbstractionable
     {
-        public static readonly string MyID = "pl";
 
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
-        //public void Send(Message message)
-        //{
-        //    message.FromAbstractionId = Utilities.AddMyAbstractionId(message.FromAbstractionId, MyID);
-        //    EventHandler<MessageEventArgs> handler = SendEvent;
-        //    MessageEventArgs args = new MessageEventArgs();
-        //    args.Message = message;
-        //    handler?.Invoke(this, args);
-        //}
-        public void Send(object sender, MessageEventArgs messageArgs)
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
+
+        public PerfectLink()
         {
-            Message message = messageArgs.Message;
+            MyID = "pl";
+        }
+        public void Send(object sender, IMessageArgumentable messageArgs)
+        {
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if (message.Type == Message.Types.Type.PlSend)
             {
                 string abstractionID = message.FromAbstractionId;
@@ -44,7 +40,7 @@ namespace DistributedSystem.Layers
                 m.NetworkMessage.Message = message.PlSend.Message;
                 m.NetworkMessage.Message = message.PlSend.Message;
 
-                EventHandler<MessageEventArgs> handler = SendEvent;
+                EventHandler<IMessageArgumentable> handler = SendEvent;
                 MessageEventArgs args = new MessageEventArgs();
                 args.Message = m;
                 args.EndHost = message.PlSend.Destination.Host;
@@ -52,18 +48,11 @@ namespace DistributedSystem.Layers
                 handler?.Invoke(this, args);
             }
         }
-        //public void Deliver(Message message)
-        //{
-        //    message.ToAbstractionId = Utilities.RemoveMyAbstractionId(message.ToAbstractionId, MyID);
-        //    EventHandler<MessageEventArgs> handler = DeliverEvent;
-        //    MessageEventArgs args = new MessageEventArgs();
-        //    args.Message = message;
-        //    handler?.Invoke(this, args);
-        //}
 
-        public void Deliver(object sender,MessageEventArgs messageArgs)
+
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if (message.Type == Message.Types.Type.NetworkMessage && Utilities.IsMyMessage(message.ToAbstractionId,MyID))
             {
                 Message m = new Message();
@@ -79,16 +68,12 @@ namespace DistributedSystem.Layers
                 m.PlDeliver.Message = message.NetworkMessage.Message;
 
                 //message.ToAbstractionId = Utilities.RemoveMyAbstractionId(message.ToAbstractionId,MyID);
-                EventHandler<MessageEventArgs> handler = DeliverEvent;
+                EventHandler<IMessageArgumentable> handler = DeliverEvent;
                 MessageEventArgs args = new MessageEventArgs();
                 args.Message = m;
                 handler?.Invoke(this, args);
             }
         }
-        //public static void TCPDeliver(Socket listeningSocket, IPEndPoint ip, List<Message> eventQueue)
-        
-
-        //private TcpClient _Client;
        
     }
 }

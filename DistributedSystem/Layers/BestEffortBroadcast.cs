@@ -9,36 +9,29 @@ using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem.Layers
 {
-    public class BestEffortBroadcast : IAbstractionable
+    public class BestEffortBroadcast : LayerBase, IAbstractionable
     {
-        public static readonly string MyID = "beb";
 
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
+
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
         public BestEffortBroadcast()
         {
-
+            MyID = "beb";
         }
         public BestEffortBroadcast(List<ProcessId> processes)
         {
+            MyID = "beb";
             Init(processes);
-            //_PerfectLink = perfectLink;
-            //_PerfectLink.Deliver += DeliverFunction;
         }
         public void Init(List<ProcessId> processes )
         {
             _Processes = processes;
         }
-        //public void Send(Message message)
-        //{
-        //    EventHandler<MessageEventArgs> handler = SendEvent;
-        //    MessageEventArgs args = new MessageEventArgs();
-        //    args.Message = message;
-        //    handler?.Invoke(this, args);
-        //}
-        public void Deliver(object sender, MessageEventArgs messageArgs)
+
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if (message.Type == Message.Types.Type.PlDeliver && Utilities.IsMyMessage(message.ToAbstractionId, MyID))
             {
                 Message m = new Message();
@@ -51,16 +44,16 @@ namespace DistributedSystem.Layers
                 m.BebDeliver.Message = new Message();
                 m.BebDeliver.Message = message.PlDeliver.Message;
 
-                EventHandler<MessageEventArgs> handler = DeliverEvent;
+                EventHandler<IMessageArgumentable> handler = DeliverEvent;
                 MessageEventArgs args = new MessageEventArgs();
                 args.Message = m;
                 handler?.Invoke(this, args);
             }
         }
 
-        public void Send(object sender,MessageEventArgs messageArgs)
+        public void Send(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
 
             if (message.Type == Message.Types.Type.BebBroadcast)
                 Broadcast(message);
@@ -84,7 +77,7 @@ namespace DistributedSystem.Layers
                 m.SystemId = message.SystemId;
                 m.PlSend.Message = message.BebBroadcast.Message;
 
-                EventHandler<MessageEventArgs> handler = SendEvent;
+                EventHandler<IMessageArgumentable> handler = SendEvent;
                 MessageEventArgs args = new MessageEventArgs();
                 args.Message = m;
                 handler?.Invoke(this, args);

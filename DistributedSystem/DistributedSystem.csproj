@@ -65,6 +65,7 @@
     <Compile Include="Layers\EpochConsensus.cs" />
     <Compile Include="Layers\EventualLeaderDetector.cs" />
     <Compile Include="Layers\EventuallyPerfectFailureDetector.cs" />
+    <Compile Include="Layers\LayerBase.cs" />
     <Compile Include="MessageComposer.cs" />
     <Compile Include="MessageEventArgs.cs" />
     <Compile Include="Layers\NNAtomicRegister.cs" />

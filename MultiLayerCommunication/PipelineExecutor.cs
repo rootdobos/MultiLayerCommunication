@@ -18,6 +18,10 @@ namespace MultiLayerCommunication
         {
             get { return _UniqueDependencyLayers; }
         }
+        public AbstractionFactory Factory
+        {
+            get { return _Factory; }
+        }
         public void ProcessMessageBottomUp(string pipelineID, IMessageArgumentable message)
         {
             if (!_Pipelines.ContainsKey(pipelineID))

@@ -8,12 +8,11 @@ using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem.Layers
 {
-    public class EventualLeaderDetector : IAbstractionable
+    public class EventualLeaderDetector : LayerBase, IAbstractionable
     {
-        public static readonly string MyID = "eld";
 
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
         public ProcessId Leader
         {
             get { return _Leader; }
@@ -21,6 +20,7 @@ namespace DistributedSystem.Layers
 
         public EventualLeaderDetector()
         {
+            MyID = "eld";
             _Leader = null;
         }
         public void Init(List<ProcessId> processes, string systemID)
@@ -51,20 +51,20 @@ namespace DistributedSystem.Layers
             message.EldTrust = new EldTrust();
             message.EldTrust.Process = _Leader;
 
-            EventHandler<MessageEventArgs> handler = DeliverEvent;
+            EventHandler<IMessageArgumentable> handler = DeliverEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
 
         }
-        public void Send(object sender, MessageEventArgs messageArgs)
+        public void Send(object sender, IMessageArgumentable messageArgs)
         {
            // throw new NotImplementedException();
         }
 
-        public void Deliver(object sender, MessageEventArgs messageArgs)
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if (message.Type == Message.Types.Type.EpfdSuspect && Utilities.IsMyMessage(message.ToAbstractionId, MyID))
             {
                 _Suspected.Add(message.EpfdSuspect.Process);

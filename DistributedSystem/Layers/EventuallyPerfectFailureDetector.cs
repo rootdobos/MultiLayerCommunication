@@ -9,19 +9,18 @@ using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem.Layers
 {
-    public class EventuallyPerfectFailureDetector : IAbstractionable
+    public class EventuallyPerfectFailureDetector : LayerBase, IAbstractionable
     {
 
-        public string MyID = "epfd";
-
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
         public EventuallyPerfectFailureDetector()
         {
-
+            MyID = "epfd";
         }
         public EventuallyPerfectFailureDetector(List<ProcessId> processes,string systemID)
         {
+            MyID = "epfd";
             Init(processes,systemID);
         }
         public void Init(List<ProcessId> processes, string systemID, int delta=100)
@@ -41,9 +40,9 @@ namespace DistributedSystem.Layers
             Timeout();
         }
 
-        public void Send(object sender, MessageEventArgs messageArgs)
+        public void Send(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
 
 
             //EventHandler<MessageEventArgs> handler = SendEvent;
@@ -52,9 +51,9 @@ namespace DistributedSystem.Layers
             //handler?.Invoke(this, args);
         }
 
-        public void Deliver(object sender, MessageEventArgs messageArgs)
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if (message.Type == Message.Types.Type.PlDeliver && Utilities.IsMyMessage(message.ToAbstractionId, MyID))
             {
                 if(message.PlDeliver.Message.Type== Message.Types.Type.EpfdInternalHeartbeatRequest)
@@ -117,7 +116,7 @@ namespace DistributedSystem.Layers
             m.EpfdSuspect = new EpfdSuspect();
             m.EpfdSuspect.Process = process;
 
-            EventHandler<MessageEventArgs> handler = DeliverEvent;
+            EventHandler<IMessageArgumentable> handler = DeliverEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = m;
             handler?.Invoke(this, args);
@@ -130,7 +129,7 @@ namespace DistributedSystem.Layers
             m.EpfdRestore = new EpfdRestore();
             m.EpfdRestore.Process = process;
 
-            EventHandler<MessageEventArgs> handler = DeliverEvent;
+            EventHandler<IMessageArgumentable> handler = DeliverEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = m;
             handler?.Invoke(this, args);
@@ -151,7 +150,7 @@ namespace DistributedSystem.Layers
             m.PlSend.Message.ToAbstractionId = MyID;
             m.PlSend.Message.EpfdInternalHeartbeatRequest = new EpfdInternalHeartbeatRequest();
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = m;
             handler?.Invoke(this, args);
@@ -171,7 +170,7 @@ namespace DistributedSystem.Layers
             m.PlSend.Message.ToAbstractionId = MyID;
             m.PlSend.Message.EpfdInternalHeartbeatReply = new EpfdInternalHeartbeatReply();
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = m;
             handler?.Invoke(this, args);

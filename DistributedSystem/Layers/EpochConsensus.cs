@@ -9,18 +9,13 @@ using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem.Layers
 {
-    public class EpochConsensus : IAbstractionable
+    public class EpochConsensus : LayerBase, IAbstractionable
     {
-        
-
-        public  string MyID = "ep";
 
         public string OwnerUC;
 
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
-
-        public bool SubscribedToSend = false;
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
 
         public EpochConsensus(string epoch)
         {
@@ -43,9 +38,9 @@ namespace DistributedSystem.Layers
 
 
 
-        public void Deliver(object sender, MessageEventArgs messageArgs)
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if (message.Type == Message.Types.Type.BebDeliver && Utilities.IsMyMessage(message.BebDeliver.Message.ToAbstractionId, MyID))
             {
                 if (message.BebDeliver.Message.Type == Message.Types.Type.EpInternalRead)
@@ -99,7 +94,7 @@ namespace DistributedSystem.Layers
             message.EpDecide.Value.Defined = true;
 
 
-            EventHandler<MessageEventArgs> handler = DeliverEvent ;
+            EventHandler<IMessageArgumentable> handler = DeliverEvent ;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -119,7 +114,7 @@ namespace DistributedSystem.Layers
             m.PlSend.Message.ToAbstractionId = "app." + OwnerUC + "." + MyID;
             m.PlSend.Message.EpInternalAccept = new EpInternalAccept();
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = m;
             handler?.Invoke(this, args);
@@ -153,7 +148,7 @@ namespace DistributedSystem.Layers
             m.BebBroadcast.Message.EpInternalDecided.Value.V = _Tmpval.V;
             m.BebBroadcast.Message.EpInternalDecided.Value.Defined = true;
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = m;
             handler?.Invoke(this, args);
@@ -196,7 +191,7 @@ namespace DistributedSystem.Layers
                 m.BebBroadcast.Message.EpInternalWrite.Value.V = _Tmpval.V;
                 m.BebBroadcast.Message.EpInternalWrite.Value.Defined = true;
 
-                EventHandler<MessageEventArgs> handler = SendEvent;
+                EventHandler<IMessageArgumentable> handler = SendEvent;
                 MessageEventArgs args = new MessageEventArgs();
                 args.Message = m;
                 handler?.Invoke(this, args);
@@ -248,15 +243,15 @@ namespace DistributedSystem.Layers
 
             //Console.WriteLine(MyID + " send state: " + _ValState.Val.V);
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = m;
             handler?.Invoke(this, args);
         }
 
-        public void Send(object sender, MessageEventArgs messageArgs)
+        public void Send(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if(message.Type== Message.Types.Type.EpPropose )
             {
                 EpPropose(message.EpPropose.Value.V);
@@ -279,7 +274,7 @@ namespace DistributedSystem.Layers
             message.EpAborted.Value.Defined = _ValState.Val.Defined;
 
 
-            EventHandler<MessageEventArgs> handler = DeliverEvent;
+            EventHandler<IMessageArgumentable> handler = DeliverEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -305,7 +300,7 @@ namespace DistributedSystem.Layers
 
             message.BebBroadcast.Message.EpInternalRead = new EpInternalRead();
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);

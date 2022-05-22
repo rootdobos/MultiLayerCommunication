@@ -5,15 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using Google.Protobuf.Communication;
 using MultiLayerCommunication.Interfaces;
+using MultiLayerCommunication;
 
 namespace DistributedSystem.Layers
 {
-    public class UniformConsensus : IAbstractionable
+    public class UniformConsensus :LayerBase, IAbstractionable
     {
-        public string MyID = "uc";
 
-        public event EventHandler<MessageEventArgs> DeliverEvent;
-        public event EventHandler<MessageEventArgs> SendEvent;
+        public event EventHandler<IMessageArgumentable> DeliverEvent;
+        public event EventHandler<IMessageArgumentable> SendEvent;
 
         public UniformConsensus(string topic)
         {
@@ -38,7 +38,7 @@ namespace DistributedSystem.Layers
             _SystemID = systemID;
 
             string uniqueDepKey = MyID + ".ec";
-            IAbstractionable ecLayer = AbstractionFactory.Produce("ec");
+            IAbstractionable ecLayer = _Executor.Factory.Produce("ec");
             _Executor.UniqueDependencyLayers.Add(uniqueDepKey, ecLayer);
             _Executor.RunInit(ecLayer, "ec");
 
@@ -48,7 +48,7 @@ namespace DistributedSystem.Layers
         {
             string epID = "ep[" + ets.ToString() + "]";
             string uniqueDepKey = MyID +"." +epID;
-            IAbstractionable epLayer = AbstractionFactory.Produce(epID);
+            IAbstractionable epLayer = _Executor.Factory.Produce(epID);
             if (_Executor.UniqueDependencyLayers.ContainsKey(uniqueDepKey))
             {
                 _Executor.UniqueDependencyLayers.Remove(uniqueDepKey);
@@ -65,9 +65,9 @@ namespace DistributedSystem.Layers
             _Executor.GeneratePipeline(pipelineID);
 
         }
-        public void Deliver(object sender, MessageEventArgs messageArgs)
+        public void Deliver(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if (message.Type == Message.Types.Type.EcStartEpoch )//&& Utilities.IsMyMessage(message.ToAbstractionId, MyID))
             {
                 _NewEpochLeader= new EpochLeader(message.EcStartEpoch.NewTimestamp, message.EcStartEpoch.NewLeader);
@@ -106,7 +106,7 @@ namespace DistributedSystem.Layers
                     m.UcDecide.Value.V = message.EpDecide.Value.V;
                     m.UcDecide.Value.Defined = message.EpDecide.Value.Defined;
 
-                    EventHandler<MessageEventArgs> handler = DeliverEvent;
+                    EventHandler<IMessageArgumentable> handler = DeliverEvent;
                     MessageEventArgs args = new MessageEventArgs();
                     args.Message = m;
                     handler?.Invoke(this, args);
@@ -125,7 +125,7 @@ namespace DistributedSystem.Layers
             message.EpAbort = new EpAbort();
 
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
@@ -152,14 +152,14 @@ namespace DistributedSystem.Layers
             message.EpPropose.Value.V = _Val.V;
             message.EpPropose.Value.Defined = _Val.Defined;
 
-            EventHandler<MessageEventArgs> handler = SendEvent;
+            EventHandler<IMessageArgumentable> handler = SendEvent;
             MessageEventArgs args = new MessageEventArgs();
             args.Message = message;
             handler?.Invoke(this, args);
         }
-        public void Send(object sender, MessageEventArgs messageArgs)
+        public void Send(object sender, IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             if(message.Type == Message.Types.Type.UcPropose)
             {
                 _Val = message.UcPropose.Value;
