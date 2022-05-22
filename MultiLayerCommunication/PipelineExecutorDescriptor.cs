@@ -60,9 +60,21 @@ namespace MultiLayerCommunication
         {
             _Initializers.AddRange(initializers);
         }
+        public void AddInitializer(IInitializer initializer)
+        {
+            _Initializers.Add(initializer);
+        }
+        public void ClearInitializers()
+        {
+            _Initializers = new List<IInitializer>();
+        }
         public void AddAdditionalPipelineNames(IEnumerable<IAdditionalPipelineContainable> names)
         {
             _AdditionalPipelineNameContainers.AddRange(names);
+        }
+        public void AddUniqueIDSetter(IUniqueIDSetter setters)
+        {
+            _UniqueIDSetters.Add(setters);
         }
         public void AddUniqueIDSetters(IEnumerable<IUniqueIDSetter> setters)
         {

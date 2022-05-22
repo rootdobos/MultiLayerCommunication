@@ -11,10 +11,11 @@ using Google.Protobuf;
 using Google.Protobuf.Communication;
 using System.IO;
 using MultiLayerCommunication;
+using MultiLayerCommunication.Interfaces;
 
 namespace DistributedSystem
 {
-    public class TCPCommunicator
+    public class TCPCommunicator:ICommunicable
     {
         public void AddSystemExecutor(string system, PipelineExecutor executor)
         {
@@ -92,14 +93,14 @@ namespace DistributedSystem
             }
         }
 
-        public void TCPSend(object sender,MessageEventArgs messageArgs)
+        public void Send(object sender,IMessageArgumentable messageArgs)
         {
-            Message message = messageArgs.Message;
+            Message message = ((MessageEventArgs)messageArgs).Message;
             message.NetworkMessage.SenderListeningPort = _MyEndPoint.Port;
             message.NetworkMessage.SenderHost = _MyEndPoint.Address.ToString();
-            int endPort = messageArgs.EndPort;
+            int endPort = ((MessageEventArgs)messageArgs).EndPort;
 
-            IPAddress destIP = System.Net.IPAddress.Parse(messageArgs.EndHost);
+            IPAddress destIP = System.Net.IPAddress.Parse(((MessageEventArgs)messageArgs).EndHost);
 
             IPEndPoint endPoint = new IPEndPoint(destIP, endPort);
 

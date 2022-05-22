@@ -69,6 +69,12 @@
     <Compile Include="Creators\NNAtomicRegisterCreator.cs" />
     <Compile Include="Creators\PerfectLinkCreator.cs" />
     <Compile Include="Creators\UniformConsensusCreator.cs" />
+    <Compile Include="Initializers\BestEffortBroadcastInitializer.cs" />
+    <Compile Include="Initializers\EpochChangeInitializer.cs" />
+    <Compile Include="Initializers\EventualLeaderDetectorInitializer.cs" />
+    <Compile Include="Initializers\EventuallyPerfectFailureDetectorInitializer.cs" />
+    <Compile Include="Initializers\NNAtomicRegisterInitializer.cs" />
+    <Compile Include="Initializers\UniformConsensusInitializer.cs" />
     <Compile Include="Layers\BestEffortBroadcast.cs" />
     <Compile Include="CommunicationMessages.cs" />
     <Compile Include="Layers\EpochChange.cs" />
@@ -84,6 +90,8 @@
     <Compile Include="Process.cs" />
     <Compile Include="TCPCommunicator.cs" />
     <Compile Include="Layers\UniformConsensus.cs" />
+    <Compile Include="UniqueNameSetters\EventuallyPerfectFailureDetectorUniqueNameSetter.cs" />
+    <Compile Include="UniqueNameSetters\UniqueNameSetterBase.cs" />
     <Compile Include="Utilities.cs" />
   </ItemGroup>
   <ItemGroup>

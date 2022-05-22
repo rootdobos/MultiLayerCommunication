@@ -10,11 +10,25 @@ using MultiLayerCommunication.Interfaces;
 using DistributedSystem.Creators;
 namespace DistributedSystem
 {
-    public class Process
+    public class Process:IProcess
     {
 
         public event EventHandler<MessageEventArgs> DeliverEvent;
         public event EventHandler<MessageEventArgs> SendEvent;
+        public List<object> Subscribed
+        {
+            get
+            {
+                return _Subscribed;
+            }
+        }
+        public List<object> Subscriptions
+        {
+            get
+            {
+                return _Subscriptions;
+            }
+        }
 
         public Process(string HubIp, int hubPort,string MyIp,  string owner,int listeningport, int index)
         {
@@ -26,7 +40,8 @@ namespace DistributedSystem
              EventQueue = new Queue<Message>();
             _TCPCommunicator = new TCPCommunicator(index, HubIp, hubPort, MyIp, listeningport);
             //_Executor = new PipelineExecutor(this,_TCPCommunicator);
-            CommunicationSystem basesystem = new CommunicationSystem("base", this, _TCPCommunicator, _AbstractionFactory);
+            InitDescriptor();
+            CommunicationSystem basesystem = new CommunicationSystem("base", this, _TCPCommunicator, _AbstractionFactory,_Descriptor);
             _Systems = new Dictionary<string, CommunicationSystem>();
             _Systems.Add("base", basesystem);
             //_TCPCommunicator.SetExecutor(_Executor);
@@ -44,6 +59,7 @@ namespace DistributedSystem
             _AbstractionFactory.RegisterCreator("uc", new UniformConsensusCreator());
             _AbstractionFactory.RegisterCreator("ep", new EpochConsensusCreator());
         }
+
         private void InitDescriptor()
         {
             _Descriptor = new PipelineExecutorDescriptor();
@@ -53,9 +69,19 @@ namespace DistributedSystem
             additionalPipelines.Add(new AdditionalPipelines.UniformConsensusAdditionalPipelines());
 
             _Descriptor.AddAdditionalPipelineNames(additionalPipelines);
-            _Descriptor.AddInternalCreatables();
-            _Descriptor.AddInitializers();
-            _Descriptor.AddUniqueLayersName();
+            _Descriptor.AddInternalCreatables(new string[] { "ep[" });
+            _Descriptor.AddUniqueLayersName(new string[] { "nnar", "uc" });
+            _Descriptor.AddUniqueIDSetter(new UniqueNameSetters.EventuallyPerfectFailureDetectorUniqueNameSetter() );
+        }
+        private void AddInitializers(List<ProcessId> processes, string systemID,PipelineExecutor executor)
+        {
+            _Descriptor.ClearInitializers();
+            _Descriptor.AddInitializer(new Initializers.BestEffortBroadcastInitializer(processes));
+            _Descriptor.AddInitializer(new Initializers.EpochChangeInitializer(processes, OwnerProcessId, systemID));
+            _Descriptor.AddInitializer(new Initializers.EventualLeaderDetectorInitializer(processes, systemID));
+            _Descriptor.AddInitializer(new Initializers.EventuallyPerfectFailureDetectorInitializer(processes,  systemID));
+            _Descriptor.AddInitializer(new Initializers.NNAtomicRegisterInitializer(processes, OwnerProcessId, systemID));
+            _Descriptor.AddInitializer(new Initializers.UniformConsensusInitializer(processes, OwnerProcessId, systemID, executor));
         }
         public void Run()
         {
@@ -133,11 +159,11 @@ namespace DistributedSystem
             }
         }
 
-        public void SubscribeToDeliver(object sender, MessageEventArgs args)
+        public void SubscribeToDeliver(object sender, IMessageArgumentable args)
         {
-            if (args.Message.SystemId == String.Empty)
-                args.Message.SystemId = "base";
-            ProcessMessage(args.Message);
+            if (((MessageEventArgs)args).Message.SystemId == String.Empty)
+                ((MessageEventArgs)args).Message.SystemId = "base";
+            ProcessMessage(((MessageEventArgs)args).Message);
         }
         private void ProcessPlDeliver(Message m)
         {
@@ -166,9 +192,8 @@ namespace DistributedSystem
                     OwnerProcessId = process;
                 }
             }
-            CommunicationSystem system = new CommunicationSystem(systemID, this, _TCPCommunicator);
-            system.Processes = processes;
-            system.OwnerProcessId = OwnerProcessId;
+            CommunicationSystem system = new CommunicationSystem(systemID, this, _TCPCommunicator, _AbstractionFactory, _Descriptor);
+            AddInitializers(processes,system.SystemID,system.Executor);
             _Systems.Add(systemID, system);
             Console.WriteLine( "{0} CommunicationSystem Initialization received",  Index);
             // _System
@@ -409,8 +434,8 @@ namespace DistributedSystem
         public int Index;
         public string Owner;
         public ProcessId OwnerProcessId;
-        public List<object> Subscribed = new List<object>();
-        public List<object> Subscriptions = new List<object>();
+        List<object> _Subscribed = new List<object>();
+        List<object> _Subscriptions = new List<object>();
 
         private AbstractionFactory _AbstractionFactory;
         private PipelineExecutorDescriptor _Descriptor;
