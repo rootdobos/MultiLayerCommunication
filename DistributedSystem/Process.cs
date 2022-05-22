@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.Communication;
+using MultiLayerCommunication;
 namespace DistributedSystem
 {
     public class Process
@@ -52,28 +53,7 @@ namespace DistributedSystem
                 Thread.Sleep(10);
             }
         }
-        public void StartPipelineExecutor()
-        {
-            
-            //Message registrationMessage = MessageComposer.ProcessRegistrationMessage( ListeningPort, Owner, Index);
 
-            //_TCPCommunicator.TCPSend(registrationMessage);
-            //while (true)
-            //{
-            //    if ( EventQueue.Count > 0)
-            //    {
-            //        Message m = null;
-            //        // Console.WriteLine("Event queue size: {0}", eventQueueSize);
-            //        lock (_Locker)
-            //        {
-            //            m =  EventQueue.Dequeue();
-            //        }
-            //        ProcessMessage(m);
-            //    }
-            //    Thread.Sleep(10);
-            //}
-        }
-        // string SystemID { get; set; }
         private  void ProcessMessage(Message message , bool fromMe=false)
         {
             if (Utilities.IsMyMessage(message.ToAbstractionId, MyID) || fromMe == true)
@@ -404,5 +384,7 @@ namespace DistributedSystem
         public ProcessId OwnerProcessId;
         public List<object> Subscribed = new List<object>();
         public List<object> Subscriptions = new List<object>();
+
+        private 
     }
 }

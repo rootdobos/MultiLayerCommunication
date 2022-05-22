@@ -26,7 +26,7 @@ namespace MultiLayerCommunication
         {
             if (!_Pipelines.ContainsKey(pipelineID))
             {
-                if (!IsElementInString(pipelineID, _InternalCreatables))
+                if (!IsElementInString(pipelineID, _Descriptor.InternalCreatables))
                 {
                     GeneratePipeline(pipelineID);
                     CheckAdditionalPipelines(pipelineID);
@@ -39,7 +39,7 @@ namespace MultiLayerCommunication
         {
             if (!_Pipelines.ContainsKey(pipelineID))
             {
-                if (!IsElementInString(pipelineID, _InternalCreatables))
+                if (!IsElementInString(pipelineID, _Descriptor.InternalCreatables))
                 {
                     GeneratePipeline(pipelineID);
                     CheckAdditionalPipelines(pipelineID);
@@ -48,38 +48,19 @@ namespace MultiLayerCommunication
             if (_Pipelines.ContainsKey(pipelineID))
                 _Pipelines[pipelineID].ProcessMessageUpBottom(message);
         }
-        public void AddInternalCreatables(IEnumerable<string> internalcreatables)
-        {
-            _InternalCreatables.AddRange(internalcreatables);
-        }
-        public void AddUniqueLayersName(IEnumerable<string> layersnames)
-        {
-            _UniqueLayerNames.AddRange(layersnames);
-        }
-        public void AddInitializers(IEnumerable<IInitializer> initializers)
-        {
-            _Initializers.AddRange(initializers);
-        }
-        public void AddAdditionalPipelineNames(IEnumerable<IAdditionalPipelineContainable> names)
-        {
-            _AdditionalPipelineNameContainers.AddRange(names);
-        }
-        public PipelineExecutor(IProcess process, ICommunicable tcpCommunicator, AbstractionFactory factory)
+       
+        public PipelineExecutor(IProcess process, ICommunicable tcpCommunicator, AbstractionFactory factory, PipelineExecutorDescriptor descriptor)
         {
             _Process = process;
             _Factory = factory;
+            _Descriptor = descriptor;
 
             _Pipelines = new Dictionary<string, Pipeline>();
             _UniqueLayers = new Dictionary<string, IAbstractionable>();
-            _UniqueLayerNames = new List<string>();
-            _AdditionalPipelineNameContainers = new List<IAdditionalPipelineContainable>();
 
             _UniqueDependencyLayers = new Dictionary<string, IAbstractionable>();
             _TCPCommunicator = tcpCommunicator;
 
-            _InternalCreatables = new List<string>();
-            _UniqueIDSetters = new List<IUniqueIDSetter>();
-            _Initializers = new List<IInitializer>();
             //_InternalCreatables.Add("ep[");   //need in the PoC
 
             // GenerateInitialPipeline();
@@ -121,7 +102,7 @@ namespace MultiLayerCommunication
 
         public void RunInit(IAbstractionable layer,string id)
         {
-            foreach(IInitializer initer in _Initializers)
+            foreach(IInitializer initer in _Descriptor.Initializers)
             {
                 if (id.Contains(initer.InitableID))
                 {
@@ -133,7 +114,7 @@ namespace MultiLayerCommunication
 
         private void SetUniqueID(IAbstractionable layer,string[] ids)
         {
-            foreach(IUniqueIDSetter setter in _UniqueIDSetters)
+            foreach(IUniqueIDSetter setter in _Descriptor.UniqueIDSetters)
             {
                 setter.Set(layer, ids);
             }
@@ -143,7 +124,7 @@ namespace MultiLayerCommunication
             string[] layersIDs = id.Split('.');
             foreach (string layerID in layersIDs)
             {
-                foreach(IAdditionalPipelineContainable container in _AdditionalPipelineNameContainers)
+                foreach(IAdditionalPipelineContainable container in _Descriptor.AdditionalPipelineNameContainers)
                 {
                     if(layerID.Contains(container.BaseID))
                     {
@@ -158,7 +139,7 @@ namespace MultiLayerCommunication
         }
         private void AddUnique(string layerID, IAbstractionable layer)
         {
-            foreach(string unique in _UniqueLayerNames)
+            foreach(string unique in _Descriptor.UniqueLayerNames)
             {
                 if(layerID.Contains(unique))
                     _UniqueLayers.Add(layerID, layer);
@@ -173,12 +154,7 @@ namespace MultiLayerCommunication
             return false;
         }
 
-        private List<string> _InternalCreatables;
-        private List<IUniqueIDSetter> _UniqueIDSetters;
-        private List<string> _UniqueLayerNames;
-        private List<IAdditionalPipelineContainable> _AdditionalPipelineNameContainers;
-
-        private List<IInitializer> _Initializers;
+       
 
         private Dictionary<string, Pipeline> _Pipelines;
         private Dictionary<string, IAbstractionable> _UniqueLayers;
@@ -186,5 +162,6 @@ namespace MultiLayerCommunication
         private Dictionary<string, IAbstractionable> _UniqueDependencyLayers;
         private IProcess _Process;
         private ICommunicable _TCPCommunicator;
+        private PipelineExecutorDescriptor _Descriptor;
     }
 }
