@@ -72,7 +72,6 @@
     <Compile Include="Layers\PerfectLink.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Process.cs" />
-    <Compile Include="System.cs" />
     <Compile Include="TCPCommunicator.cs" />
     <Compile Include="Layers\UniformConsensus.cs" />
     <Compile Include="Utilities.cs" />
