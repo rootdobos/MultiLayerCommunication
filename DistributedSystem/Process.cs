@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf.Communication;
 using MultiLayerCommunication;
+using MultiLayerCommunication.Interfaces;
+using DistributedSystem.Creators;
 namespace DistributedSystem
 {
     public class Process
@@ -24,7 +26,7 @@ namespace DistributedSystem
              EventQueue = new Queue<Message>();
             _TCPCommunicator = new TCPCommunicator(index, HubIp, hubPort, MyIp, listeningport);
             //_Executor = new PipelineExecutor(this,_TCPCommunicator);
-            CommunicationSystem basesystem = new CommunicationSystem("base", this, _TCPCommunicator);
+            CommunicationSystem basesystem = new CommunicationSystem("base", this, _TCPCommunicator, _AbstractionFactory);
             _Systems = new Dictionary<string, CommunicationSystem>();
             _Systems.Add("base", basesystem);
             //_TCPCommunicator.SetExecutor(_Executor);
@@ -33,10 +35,27 @@ namespace DistributedSystem
         private void InitAbstractionFactory()
         {
             _AbstractionFactory = new AbstractionFactory();
+            _AbstractionFactory.RegisterCreator("pl",new PerfectLinkCreator());
+            _AbstractionFactory.RegisterCreator("beb", new BestEffortBroadcastCreator());
+            _AbstractionFactory.RegisterCreator("nnar", new NNAtomicRegisterCreator());
+            _AbstractionFactory.RegisterCreator("epfd", new EventuallyPerfectFailureDetectorCreator());
+            _AbstractionFactory.RegisterCreator("eld", new EventualLeaderDetectorCreator());
+            _AbstractionFactory.RegisterCreator("ec", new EpochChangeCreator());
+            _AbstractionFactory.RegisterCreator("uc", new UniformConsensusCreator());
+            _AbstractionFactory.RegisterCreator("ep", new EpochConsensusCreator());
         }
         private void InitDescriptor()
         {
             _Descriptor = new PipelineExecutorDescriptor();
+
+            List<IAdditionalPipelineContainable> additionalPipelines = new List<IAdditionalPipelineContainable>();
+            additionalPipelines.Add(new AdditionalPipelines.NNAtomicRegisterAdditionalPipelines());
+            additionalPipelines.Add(new AdditionalPipelines.UniformConsensusAdditionalPipelines());
+
+            _Descriptor.AddAdditionalPipelineNames(additionalPipelines);
+            _Descriptor.AddInternalCreatables();
+            _Descriptor.AddInitializers();
+            _Descriptor.AddUniqueLayersName();
         }
         public void Run()
         {

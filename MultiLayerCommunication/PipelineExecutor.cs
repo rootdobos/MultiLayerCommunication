@@ -128,7 +128,7 @@ namespace MultiLayerCommunication
                 {
                     if(layerID.Contains(container.BaseID))
                     {
-                        foreach(string pipelineId in container.AdditionalPipelines)
+                        foreach(string pipelineId in container.AdditionalPipelines(layerID))
                         {
                             if (!_Pipelines.ContainsKey(pipelineId))
                                 GeneratePipeline(pipelineId);

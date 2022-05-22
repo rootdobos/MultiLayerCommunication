@@ -9,6 +9,6 @@ namespace MultiLayerCommunication.Interfaces
     public interface IAdditionalPipelineContainable
     {
         string BaseID { get; }
-        List<string> AdditionalPipelines { get; }
+        List<string> AdditionalPipelines(string id);
     }
 }

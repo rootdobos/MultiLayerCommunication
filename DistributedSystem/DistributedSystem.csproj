@@ -59,6 +59,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdditionalPipelines\NNAtomicRegisterAdditionalPipelines.cs" />
+    <Compile Include="AdditionalPipelines\UniformConsensusAdditionalPipelines.cs" />
     <Compile Include="Creators\BestEffortBroadcastCreator.cs" />
     <Compile Include="Creators\EpochChangeCreator.cs" />
     <Compile Include="Creators\EpochConsensusCreator.cs" />

@@ -64,6 +64,10 @@ namespace MultiLayerCommunication
         {
             _AdditionalPipelineNameContainers.AddRange(names);
         }
+        public void AddUniqueIDSetters(IEnumerable<IUniqueIDSetter> setters)
+        {
+            _UniqueIDSetters.AddRange(setters);
+        }
         public PipelineExecutorDescriptor()
         {
             _UniqueLayerNames = new List<string>();
