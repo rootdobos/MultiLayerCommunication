@@ -38,7 +38,7 @@ namespace MultiLayerCommunication
             }
             for (int i=1; i<_Layers.Length;i++)
             {
-                if (!_Layers[i].SubscribedToDeliver.Contains(_Layers[i + 1]))
+                if (!_Layers[i].SubscribedToDeliver.Contains(_Layers[i -1]))
                 {
                     _Layers[i].DeliverEvent += _Layers[i - 1].Deliver;
                     _Layers[i].SubscribedToDeliver.Add(_Layers[i - 1]);

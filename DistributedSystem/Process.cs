@@ -40,6 +40,7 @@ namespace DistributedSystem
              EventQueue = new Queue<Message>();
             _TCPCommunicator = new TCPCommunicator(index, HubIp, hubPort, MyIp, listeningport);
             //_Executor = new PipelineExecutor(this,_TCPCommunicator);
+            InitAbstractionFactory();
             InitDescriptor();
             CommunicationSystem basesystem = new CommunicationSystem("base", this, _TCPCommunicator, _AbstractionFactory,_Descriptor);
             _Systems = new Dictionary<string, CommunicationSystem>();

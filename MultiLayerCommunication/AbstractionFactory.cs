@@ -21,7 +21,7 @@ namespace MultiLayerCommunication
         {
             foreach(KeyValuePair<string, Interfaces.IAbstractionCreatable> kvPair in _Creators)
             {
-                if(kvPair.Key.Contains(id))
+                if(id.Contains(kvPair.Key))
                 {
                     kvPair.Value.ID = id;
                     return  kvPair.Value.Create();
