@@ -1,6 +1,0 @@
-D:\egyetem\2 felev\frameworkDesign\assigment\MultiLayerCommunication\MultiLayerCommunication\obj\Debug\MultiLayerCommunication.csprojAssemblyReference.cache
-D:\egyetem\2 felev\frameworkDesign\assigment\MultiLayerCommunication\MultiLayerCommunication\obj\Debug\MultiLayerCommunication.csproj.CoreCompileInputs.cache
-D:\egyetem\2 felev\frameworkDesign\assigment\MultiLayerCommunication\MultiLayerCommunication\bin\Debug\MultiLayerCommunication.dll
-D:\egyetem\2 felev\frameworkDesign\assigment\MultiLayerCommunication\MultiLayerCommunication\bin\Debug\MultiLayerCommunication.pdb
-D:\egyetem\2 felev\frameworkDesign\assigment\MultiLayerCommunication\MultiLayerCommunication\obj\Debug\MultiLayerCommunication.dll
-D:\egyetem\2 felev\frameworkDesign\assigment\MultiLayerCommunication\MultiLayerCommunication\obj\Debug\MultiLayerCommunication.pdb
