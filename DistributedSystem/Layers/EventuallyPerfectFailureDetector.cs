@@ -5,7 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Google.Protobuf.Communication;
-namespace DistributedSystem
+using MultiLayerCommunication.Interfaces;
+
+namespace DistributedSystem.Layers
 {
     public class EventuallyPerfectFailureDetector : IAbstractionable
     {

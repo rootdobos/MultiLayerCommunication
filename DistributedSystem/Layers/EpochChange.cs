@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Google.Protobuf.Communication;
+using MultiLayerCommunication.Interfaces;
 
-namespace DistributedSystem
+
+namespace DistributedSystem.Layers
 {
     public class EpochChange : IAbstractionable
     {

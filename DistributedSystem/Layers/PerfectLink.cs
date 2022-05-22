@@ -8,7 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Google.Protobuf;
 using Google.Protobuf.Communication;
-namespace DistributedSystem
+using MultiLayerCommunication.Interfaces;
+
+namespace DistributedSystem.Layers
 {
     public class PerfectLink : IAbstractionable
     {

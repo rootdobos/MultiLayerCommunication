@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MultiLayerCommunication.Interfaces;
 
-namespace DistributedSystem
+namespace DistributedSystem.Layers
 {
     public class NNAtomicRegister :IAbstractionable
     {
