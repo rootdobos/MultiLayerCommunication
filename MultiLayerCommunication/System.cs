@@ -10,11 +10,11 @@ namespace MultiLayerCommunication
     public class CommunicationSystem
     {
         public string SystemID;
-        public PipelineExecutor Executor { get { return Executor; } }
-        public CommunicationSystem(string systemID, IProcess process, ICommunicable communicator, AbstractionFactory factory )
+        //public PipelineExecutor Executor { get { return Executor; } }
+        public CommunicationSystem(string systemID, IProcess process, ICommunicable communicator, AbstractionFactory factory , PipelineExecutorDescriptor descriptor)
         {
             _OwnerProcess = process;
-            _Executor = new PipelineExecutor(_OwnerProcess, communicator, factory);
+            _Executor = new PipelineExecutor(_OwnerProcess, communicator, factory, descriptor);
 
             SystemID = systemID;
             _Executor.SystemID = SystemID;

@@ -30,6 +30,14 @@ namespace DistributedSystem
             //_TCPCommunicator.SetExecutor(_Executor);
 
         }
+        private void InitAbstractionFactory()
+        {
+            _AbstractionFactory = new AbstractionFactory();
+        }
+        private void InitDescriptor()
+        {
+            _Descriptor = new PipelineExecutorDescriptor();
+        }
         public void Run()
         {
             Message message = new Message();
@@ -385,6 +393,7 @@ namespace DistributedSystem
         public List<object> Subscribed = new List<object>();
         public List<object> Subscriptions = new List<object>();
 
-        private 
+        private AbstractionFactory _AbstractionFactory;
+        private PipelineExecutorDescriptor _Descriptor;
     }
 }

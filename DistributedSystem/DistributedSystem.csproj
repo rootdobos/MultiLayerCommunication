@@ -59,6 +59,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Creators\BestEffortBroadcastCreator.cs" />
+    <Compile Include="Creators\EpochChangeCreator.cs" />
+    <Compile Include="Creators\EpochConsensusCreator.cs" />
+    <Compile Include="Creators\EventualLeaderDetectorCreator.cs" />
+    <Compile Include="Creators\EventuallyPerfectFailureDetectorCreator.cs" />
+    <Compile Include="Creators\NNAtomicRegisterCreator.cs" />
+    <Compile Include="Creators\PerfectLinkCreator.cs" />
+    <Compile Include="Creators\UniformConsensusCreator.cs" />
     <Compile Include="Layers\BestEffortBroadcast.cs" />
     <Compile Include="CommunicationMessages.cs" />
     <Compile Include="Layers\EpochChange.cs" />
@@ -85,6 +93,7 @@
       <Name>MultiLayerCommunication</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Google.Protobuf.Tools.3.19.4\build\Google.Protobuf.Tools.targets" Condition="Exists('..\packages\Google.Protobuf.Tools.3.19.4\build\Google.Protobuf.Tools.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
